@@ -5,6 +5,7 @@ import {
   GITHUB_CLIENT_ID,
   standardHeaders,
 } from "~/lib/api-config"
+import { proxiedFetch } from "~/lib/proxy"
 import { sleep } from "~/lib/utils"
 
 import type { DeviceCodeResponse } from "./get-device-code"
@@ -18,7 +19,7 @@ export async function pollAccessToken(
   consola.debug(`Polling access token with interval of ${sleepDuration}ms`)
 
   while (true) {
-    const response = await fetch(
+    const response = await proxiedFetch(
       `${GITHUB_BASE_URL}/login/oauth/access_token`,
       {
         method: "POST",

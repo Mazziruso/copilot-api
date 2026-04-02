@@ -1,9 +1,10 @@
 import { GITHUB_API_BASE_URL, githubHeaders } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
+import { proxiedFetch } from "~/lib/proxy"
 import { state } from "~/lib/state"
 
 export const getCopilotUsage = async (): Promise<CopilotUsageResponse> => {
-  const response = await fetch(`${GITHUB_API_BASE_URL}/copilot_internal/user`, {
+  const response = await proxiedFetch(`${GITHUB_API_BASE_URL}/copilot_internal/user`, {
     headers: githubHeaders(state),
   })
 

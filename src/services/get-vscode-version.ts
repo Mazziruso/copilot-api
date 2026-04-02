@@ -1,3 +1,5 @@
+import { proxiedFetch } from "~/lib/proxy"
+
 const FALLBACK = "1.104.3"
 
 export async function getVSCodeVersion() {
@@ -7,7 +9,7 @@ export async function getVSCodeVersion() {
   }, 5000)
 
   try {
-    const response = await fetch(
+    const response = await proxiedFetch(
       "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=visual-studio-code-bin",
       {
         signal: controller.signal,
