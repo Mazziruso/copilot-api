@@ -1,9 +1,10 @@
 import { GITHUB_API_BASE_URL, standardHeaders } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
+import { proxiedFetch } from "~/lib/proxy"
 import { state } from "~/lib/state"
 
 export async function getGitHubUser() {
-  const response = await fetch(`${GITHUB_API_BASE_URL}/user`, {
+  const response = await proxiedFetch(`${GITHUB_API_BASE_URL}/user`, {
     headers: {
       authorization: `token ${state.githubToken}`,
       ...standardHeaders(),

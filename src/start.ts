@@ -69,21 +69,11 @@ export async function runServer(options: RunServerOptions): Promise<void> {
   if (options.claudeCode) {
     invariant(state.models, "Models should be loaded by now")
 
-    const selectedModel = await consola.prompt(
-      "Select a model to use with Claude Code",
-      {
-        type: "select",
-        options: state.models.data.map((model) => model.id),
-      },
-    )
+    const selectedModel = process.env.SELECTED_CLAUDE_MODEL ?? "claude-opus-4.6-1m"
+    consola.info(`selected model: ${selectedModel}`)
 
-    const selectedSmallModel = await consola.prompt(
-      "Select a small model to use with Claude Code",
-      {
-        type: "select",
-        options: state.models.data.map((model) => model.id),
-      },
-    )
+    const selectedSmallModel = process.env.SELECTED_FAST_MODEL ?? "claude-sonnet-4.6"
+    consola.info(`selected small model: ${selectedSmallModel}`)
 
     const command = generateEnvScript(
       {

@@ -1,0 +1,19 @@
+services:
+  copilot-api:
+    image: copilot-api:latest
+    ports:
+      - "54141:4141"
+    entrypoint:
+      - "/entrypoint.sh"
+      - start
+      - -c
+      - --proxy-env
+    environment:
+      - HTTP_PROXY=http://host.docker.internal:12808
+      - HTTPS_PROXY=http://host.docker.internal:12808
+      - NO_PROXY=localhost,127.0.0.1,host.docker.internal
+      - SELECTED_CLAUDE_MODEL=claude-opus-4.6-1m
+      - SELECTED_FAST_MODEL=claude-sonnet-4.6
+    restart: unless-stopped
+    volumes:
+      - /c/DevOps/github/copilot-data:/root/.local/share/copilot-api
