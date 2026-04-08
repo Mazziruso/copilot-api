@@ -69,34 +69,39 @@ export async function runServer(options: RunServerOptions): Promise<void> {
   if (options.claudeCode) {
     invariant(state.models, "Models should be loaded by now")
 
-    const selectedModel = process.env.SELECTED_CLAUDE_MODEL ?? "claude-opus-4.6-1m"
+    const selectedModel =
+      process.env.SELECTED_CLAUDE_MODEL ?? "claude-opus-4.6-1m"
     consola.info(`selected model: ${selectedModel}`)
 
-    const selectedSmallModel = process.env.SELECTED_FAST_MODEL ?? "claude-sonnet-4.6"
+    const selectedSmallModel =
+      process.env.SELECTED_FAST_MODEL ?? "claude-sonnet-4.6"
     consola.info(`selected small model: ${selectedSmallModel}`)
 
-    const command = generateEnvScript(
-      {
-        ANTHROPIC_BASE_URL: serverUrl,
-        ANTHROPIC_AUTH_TOKEN: "dummy",
-        ANTHROPIC_MODEL: selectedModel,
-        ANTHROPIC_DEFAULT_SONNET_MODEL: selectedModel,
-        ANTHROPIC_SMALL_FAST_MODEL: selectedSmallModel,
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: selectedSmallModel,
-        DISABLE_NON_ESSENTIAL_MODEL_CALLS: "1",
-        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
-      },
-      "claude",
-    )
+    state.claudeEnable = true
+    state.selectedModel = selectedModel
+    state.selectedSmallModel = selectedSmallModel
+
+    const claudeSettings = {
+      ANTHROPIC_BASE_URL: serverUrl,
+      ANTHROPIC_AUTH_TOKEN: "dummy",
+      ANTHROPIC_MODEL: selectedModel,
+      ANTHROPIC_DEFAULT_SONNET_MODEL: selectedModel,
+      ANTHROPIC_SMALL_FAST_MODEL: selectedSmallModel,
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: selectedSmallModel,
+      DISABLE_NON_ESSENTIAL_MODEL_CALLS: "1",
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+    }
+
+    const command = generateEnvScript(claudeSettings, "claude")
 
     try {
       clipboard.writeSync(command)
       consola.success("Copied Claude Code command to clipboard!")
     } catch {
       consola.warn(
-        "Failed to copy to clipboard. Here is the Claude Code command:",
+        "Failed to copy to clipboard. Here is the Claude Code settings:",
       )
-      consola.log(command)
+      consola.log(claudeSettings)
     }
   }
 

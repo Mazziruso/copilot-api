@@ -65,7 +65,7 @@ function isValidChatCompletionRequest(payload: unknown): boolean {
 describe("Anthropic to OpenAI translation logic", () => {
   test("should translate minimal Anthropic payload to valid OpenAI payload", () => {
     const anthropicPayload: AnthropicMessagesPayload = {
-      model: "gpt-4o",
+      model: "claude-sonnet-4",
       messages: [{ role: "user", content: "Hello!" }],
       max_tokens: 0,
     }
@@ -76,7 +76,7 @@ describe("Anthropic to OpenAI translation logic", () => {
 
   test("should translate comprehensive Anthropic payload to valid OpenAI payload", () => {
     const anthropicPayload: AnthropicMessagesPayload = {
-      model: "gpt-4o",
+      model: "claude-sonnet-4",
       system: "You are a helpful assistant.",
       messages: [
         { role: "user", content: "What is the weather like in Boston?" },
@@ -105,7 +105,7 @@ describe("Anthropic to OpenAI translation logic", () => {
 
   test("should handle missing fields gracefully", () => {
     const anthropicPayload: AnthropicMessagesPayload = {
-      model: "gpt-4o",
+      model: "claude-sonnet-4",
       messages: [{ role: "user", content: "Hello!" }],
       max_tokens: 0,
     }
@@ -115,7 +115,7 @@ describe("Anthropic to OpenAI translation logic", () => {
 
   test("should handle invalid types in Anthropic payload", () => {
     const anthropicPayload = {
-      model: "gpt-4o",
+      model: "claude-sonnet-4",
       messages: [{ role: "user", content: "Hello!" }],
       temperature: "hot", // Should be a number
     }
@@ -123,6 +123,18 @@ describe("Anthropic to OpenAI translation logic", () => {
     const openAIPayload = translateToOpenAI(anthropicPayload)
     // Should fail validation
     expect(isValidChatCompletionRequest(openAIPayload)).toBe(false)
+  })
+
+  test("should reject non-Claude models with an error", () => {
+    const anthropicPayload: AnthropicMessagesPayload = {
+      model: "gpt-4o",
+      messages: [{ role: "user", content: "Hello!" }],
+      max_tokens: 0,
+    }
+
+    expect(() => translateToOpenAI(anthropicPayload)).toThrow(
+      "Only support Claude model families",
+    )
   })
 
   test("should handle thinking blocks in assistant messages", () => {
