@@ -1,3 +1,8 @@
+import consola from "consola"
+
+import { HTTPError } from "~/lib/error"
+import { state } from "~/lib/state"
+import { isNullish } from "~/lib/utils"
 import {
   type ChatCompletionResponse,
   type ChatCompletionsPayload,
@@ -47,13 +52,69 @@ export function translateToOpenAI(
 }
 
 function translateModelName(model: string): string {
-  // Subagent requests use a specific model number which Copilot doesn't support
-  if (model.startsWith("claude-sonnet-4-")) {
-    return model.replace(/^claude-sonnet-4-.*/, "claude-sonnet-4")
-  } else if (model.startsWith("claude-opus-")) {
-    return model.replace(/^claude-opus-4-.*/, "claude-opus-4")
+  // Fallback: return model as-is when not in --claude-code mode
+  if (!state.claudeEnable) {
+    return model
   }
-  return model
+
+  // --claude-code mode
+  if (isNullish(state.selectedModel) || isNullish(state.selectedSmallModel)) {
+    throw new HTTPError(
+      "Models are not select in Claude mode",
+      Response.json(
+        { message: "Models are not select in Claude mode" },
+        { status: 400 },
+      ),
+    )
+  }
+
+  if (
+    !state.selectedModel.includes("claude")
+    || !state.selectedSmallModel.includes("claude")
+  ) {
+    throw new HTTPError(
+      "Models are not selected to Claude families in Claude mode",
+      Response.json(
+        {
+          message: "Models are not selected to Claude families in Claude mode",
+        },
+        { status: 400 },
+      ),
+    )
+  }
+
+  if (!model.startsWith("claude")) {
+    throw new HTTPError(
+      "Only support Claude model families",
+      Response.json(
+        { message: "Only support Claude model families" },
+        { status: 400 },
+      ),
+    )
+  }
+
+  // Extract family name (e.g., "opus" from "claude-opus-4.6", "sonnet" from "claude-sonnet-4.5")
+  const firstDash = model.indexOf("-")
+  const secondDash = model.indexOf("-", firstDash + 1)
+  const family = model.slice(firstDash + 1, secondDash)
+  consola.debug("Requested model family: ", family)
+
+  const matched = [state.selectedModel, state.selectedSmallModel].find((m) =>
+    m.includes(family),
+  )
+  if (matched) {
+    return matched
+  }
+
+  throw new HTTPError(
+    "Mismatched between selected model family and requested model family",
+    Response.json(
+      {
+        message: `No selected model matches family "${family}" from requested model "${model}"`,
+      },
+      { status: 400 },
+    ),
+  )
 }
 
 function translateAnthropicMessagesToOpenAI(

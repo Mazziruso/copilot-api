@@ -30,7 +30,14 @@ export async function proxiedFetch(
     return fetch(input, init)
   }
 
-  const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url
+  let url: string
+  if (typeof input === "string") {
+    url = input
+  } else if (input instanceof URL) {
+    url = input.toString()
+  } else {
+    url = input.url
+  }
   const proxyUrl = getProxyUrl(url)
 
   if (!proxyUrl) {

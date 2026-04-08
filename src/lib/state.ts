@@ -8,6 +8,11 @@ export interface State {
   models?: ModelsResponse
   vsCodeVersion?: string
 
+  // Selected Claude models (set when --claude-code is used)
+  claudeEnable: boolean
+  selectedModel?: string // primary model
+  selectedSmallModel?: string // fast model
+
   manualApprove: boolean
   rateLimitWait: boolean
   showToken: boolean
