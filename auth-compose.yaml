@@ -1,0 +1,9 @@
+services:
+  copilot-api:
+    image: copilot-api
+    command:
+      - auth
+    ports:
+      - "54141:4141"
+    volumes:
+      - /home/kuzheng/copilot-data:/root/.local/share/copilot-api
